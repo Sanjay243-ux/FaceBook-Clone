@@ -122,6 +122,7 @@ img {
   display: flex;
   align-items: center;
   padding: 0 16px;
+  justify-content: space-between;
 }
 .th-header-left {
   display: flex;
@@ -325,7 +326,7 @@ img {
 .th-dropdown-item:hover {
   background: var(--hover-bg);
 }
-.th-dropdown-item i {
+.th-dropdown-item i.bi:not(.th-dropdown-arrow) {
   font-size: 1.1rem;
   width: 36px;
   height: 36px;
@@ -335,6 +336,69 @@ img {
   background: var(--elevated-bg);
   border-radius: 50%;
 }
+.th-dropdown-text {
+  flex: 1;
+  font-weight: 500;
+}
+.th-dropdown-arrow {
+  font-size: 1rem !important;
+  color: var(--text-muted);
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+}
+
+/* Facebook Profile Menu Card */
+.th-dropdown-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  margin-bottom: 8px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+[data-theme="light"] .th-dropdown-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+}
+.th-dropdown-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.th-dropdown-profile-info:hover {
+  background: var(--hover-bg);
+}
+.th-dropdown-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--elevated-bg);
+}
+.th-dropdown-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.th-dropdown-see-all {
+  color: var(--accent-blue);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+.th-dropdown-see-all:hover {
+  background: var(--hover-bg);
+}
+
 
 /* ====== LAYOUT ====== */
 .th-layout {
@@ -1150,7 +1214,63 @@ img {
   .th-header-right {
     min-width: auto;
   }
+  .th-layout {
+    padding-top: 104px; /* 56px header + 48px mobile nav */
+  }
 }
+
+.th-mobile-nav {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--header-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  z-index: 1040;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .th-mobile-nav {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.th-mobile-nav-btn {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.th-mobile-nav-btn:hover, .th-mobile-nav-btn:active {
+  background: var(--hover-bg);
+}
+
+.th-mobile-nav-btn.active {
+  color: var(--accent-blue);
+}
+
+.th-mobile-nav-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-blue);
+}
+
 @media (max-width: 575px) {
   .th-post-image {
     border-radius: 0;
@@ -1158,6 +1278,20 @@ img {
   .th-story-item {
     min-width: 96px;
     height: 170px;
+  }
+  .th-card {
+    border-radius: 0;
+    margin-bottom: 8px;
+    box-shadow: none;
+  }
+  .th-main-col {
+    padding: 0 !important;
+  }
+  .container-fluid {
+    padding: 0 !important;
+  }
+  .row {
+    margin: 0 !important;
   }
 }
 

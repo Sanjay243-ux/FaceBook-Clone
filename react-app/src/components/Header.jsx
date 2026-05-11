@@ -56,19 +56,15 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
       </div>
 
       <div className="th-header-right">
-        <button className="th-icon-btn" title="Menu" id="menu-btn" onClick={() => navigate('/menu')}>
+        <button className="th-icon-btn d-none d-lg-flex" title="Menu" id="menu-btn" onClick={() => navigate('/menu')}>
           <i className="bi bi-grid-3x3-gap-fill"></i>
-        </button>
-        <button className="th-icon-btn" title="Messenger" id="messenger-btn" onClick={() => navigate('/messenger')}>
-          <i className="bi bi-chat-dots-fill"></i>
-          <span className="th-notif-dot"></span>
         </button>
         <button className="th-icon-btn" title="Notifications" id="notif-btn" onClick={() => navigate('/notifications')}>
           <i className="bi bi-bell-fill"></i>
           <span className="th-notif-dot"></span>
         </button>
         <button
-          className="th-icon-btn"
+          className="th-icon-btn d-none d-sm-flex"
           title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           onClick={() => setDarkMode(!darkMode)}
           id="theme-toggle"
@@ -80,19 +76,31 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" />
           </button>
           {showDropdown && (
-            <div className="th-dropdown" id="user-dropdown">
-              <div className="th-dropdown-item" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
-                <i className="bi bi-person-circle"></i> Profile
+            <div className="th-dropdown" id="user-dropdown" style={{ padding: '16px 8px 8px 8px' }}>
+              <div className="th-dropdown-card">
+                <div className="th-dropdown-profile-info" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" className="th-dropdown-avatar" />
+                  <div className="th-dropdown-name">Tech Admin</div>
+                </div>
+                <div className="th-divider" style={{ margin: '0 16px' }}></div>
+                <div className="th-dropdown-see-all" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
+                  See all profiles
+                </div>
               </div>
+
               <div className="th-dropdown-item" onClick={() => { navigate('/settings'); setShowDropdown(false); }}>
-                <i className="bi bi-gear"></i> Settings & Privacy
+                <i className="bi bi-gear-fill"></i>
+                <span className="th-dropdown-text">Settings & privacy</span>
+                <i className="bi bi-chevron-right th-dropdown-arrow"></i>
               </div>
               <div className="th-dropdown-item" onClick={() => { navigate('/help'); setShowDropdown(false); }}>
-                <i className="bi bi-question-circle"></i> Help & Support
+                <i className="bi bi-question-circle-fill"></i>
+                <span className="th-dropdown-text">Help & support</span>
+                <i className="bi bi-chevron-right th-dropdown-arrow"></i>
               </div>
               <div className="th-dropdown-item" onClick={() => setDarkMode(!darkMode)}>
                 <i className={`bi ${darkMode ? 'bi-moon-fill' : 'bi-sun-fill'}`}></i>
-                <span style={{ flex: 1 }}>{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
+                <span className="th-dropdown-text">Display & accessibility</span>
                 <div style={{
                   width: 36, height: 20, borderRadius: 10,
                   background: darkMode ? 'var(--accent-blue)' : 'var(--elevated-bg)',
@@ -105,13 +113,36 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
                   }}></div>
                 </div>
               </div>
-              <div className="th-divider" style={{ margin: '4px 0' }}></div>
               <div className="th-dropdown-item">
-                <i className="bi bi-box-arrow-right" style={{ color: 'var(--badge-news)' }}></i> Log Out
+                <i className="bi bi-chat-left-text-fill"></i>
+                <span className="th-dropdown-text">Give feedback</span>
+              </div>
+              <div className="th-dropdown-item">
+                <i className="bi bi-box-arrow-right"></i>
+                <span className="th-dropdown-text">Log Out</span>
               </div>
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Mobile Top Navigation */}
+      <div className="th-mobile-nav d-flex d-lg-none">
+        {navItems.map(item => (
+          <button
+            key={`mobile-${item.id}`}
+            className={`th-mobile-nav-btn ${location.pathname === item.path ? 'active' : ''}`}
+            onClick={() => navigate(item.path)}
+          >
+            <i className={`bi ${item.icon}`}></i>
+          </button>
+        ))}
+        <button 
+          className={`th-mobile-nav-btn ${location.pathname === '/menu' ? 'active' : ''}`} 
+          onClick={() => navigate('/menu')}
+        >
+          <i className="bi bi-list"></i>
+        </button>
       </div>
     </header>
   );

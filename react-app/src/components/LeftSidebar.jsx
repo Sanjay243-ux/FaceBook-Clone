@@ -2,9 +2,7 @@ export default function LeftSidebar() {
   const navLinks = [
     { icon: 'bi-house-door-fill', label: 'Home', color: '#2374e1' },
     { icon: 'bi-play-btn-fill', label: 'Watch', color: '#2374e1' },
-    { icon: 'bi-shop', label: 'Marketplace', color: '#2374e1' },
     { icon: 'bi-people-fill', label: 'Groups', color: '#2374e1' },
-    { icon: 'bi-controller', label: 'Gaming', color: '#2374e1' },
   ];
 
   const shortcuts = [
