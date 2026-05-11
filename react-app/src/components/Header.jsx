@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQuery }) {
-  const [activeNav, setActiveNav] = useState('home');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
-    { id: 'home', icon: 'bi-house-door-fill', label: 'Home' },
-    { id: 'news', icon: 'bi-newspaper', label: 'Tech News' },
-    { id: 'guides', icon: 'bi-journal-code', label: 'Guides' },
-    { id: 'videos', icon: 'bi-play-btn-fill', label: 'Videos' },
-    { id: 'groups', icon: 'bi-people-fill', label: 'Groups' },
+    { id: 'home', path: '/', icon: 'bi-house-door-fill', label: 'Home' },
+    { id: 'news', path: '/news', icon: 'bi-newspaper', label: 'Tech News' },
+    { id: 'guides', path: '/guides', icon: 'bi-journal-code', label: 'Guides' },
+    { id: 'videos', path: '/videos', icon: 'bi-play-btn-fill', label: 'Videos' },
+    { id: 'groups', path: '/groups', icon: 'bi-people-fill', label: 'Groups' },
   ];
 
   useEffect(() => {
@@ -24,10 +26,10 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
   return (
     <header className="th-header" id="main-header">
       <div className="th-header-left">
-        <a href="#" className="th-logo" id="logo-link">
+        <Link to="/" className="th-logo" id="logo-link" style={{ textDecoration: 'none' }}>
           <div className="th-logo-icon"><i className="bi bi-cpu-fill"></i></div>
           Tech<span>Hub</span>
-        </a>
+        </Link>
         <div className="th-search-wrap d-none d-md-block">
           <i className="bi bi-search th-search-icon"></i>
           <input
@@ -43,8 +45,8 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
         {navItems.map(item => (
           <button
             key={item.id}
-            className={`th-header-nav-btn ${activeNav === item.id ? 'active' : ''}`}
-            onClick={() => setActiveNav(item.id)}
+            className={`th-header-nav-btn ${location.pathname === item.path ? 'active' : ''}`}
+            onClick={() => navigate(item.path)}
             id={`nav-${item.id}`}
           >
             <i className={`bi ${item.icon}`}></i>
@@ -54,14 +56,14 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
       </div>
 
       <div className="th-header-right">
-        <button className="th-icon-btn" title="Menu" id="menu-btn">
+        <button className="th-icon-btn" title="Menu" id="menu-btn" onClick={() => navigate('/menu')}>
           <i className="bi bi-grid-3x3-gap-fill"></i>
         </button>
-        <button className="th-icon-btn" title="Messenger" id="messenger-btn">
+        <button className="th-icon-btn" title="Messenger" id="messenger-btn" onClick={() => navigate('/messenger')}>
           <i className="bi bi-chat-dots-fill"></i>
           <span className="th-notif-dot"></span>
         </button>
-        <button className="th-icon-btn" title="Notifications" id="notif-btn">
+        <button className="th-icon-btn" title="Notifications" id="notif-btn" onClick={() => navigate('/notifications')}>
           <i className="bi bi-bell-fill"></i>
           <span className="th-notif-dot"></span>
         </button>
@@ -79,13 +81,13 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
           </button>
           {showDropdown && (
             <div className="th-dropdown" id="user-dropdown">
-              <div className="th-dropdown-item">
+              <div className="th-dropdown-item" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
                 <i className="bi bi-person-circle"></i> Profile
               </div>
-              <div className="th-dropdown-item">
+              <div className="th-dropdown-item" onClick={() => { navigate('/settings'); setShowDropdown(false); }}>
                 <i className="bi bi-gear"></i> Settings & Privacy
               </div>
-              <div className="th-dropdown-item">
+              <div className="th-dropdown-item" onClick={() => { navigate('/help'); setShowDropdown(false); }}>
                 <i className="bi bi-question-circle"></i> Help & Support
               </div>
               <div className="th-dropdown-item" onClick={() => setDarkMode(!darkMode)}>
