@@ -1,8 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    sessionStorage.setItem('techhub-auth', '1');
+    navigate('/');
+  };
+
   return (
     <div className="fb-auth-page">
       <div className="fb-auth-container">
@@ -27,10 +34,18 @@ export default function Login() {
         {/* Right side form */}
         <div className="fb-auth-right">
           <div className="fb-auth-card">
-            <form className="fb-auth-form" onSubmit={e => e.preventDefault()}>
-              <input type="text" placeholder="Mobile number or email address" className="fb-auth-input" />
-              <input type="password" placeholder="Password" className="fb-auth-input" />
-              <button type="button" className="fb-auth-btn-primary">Log In</button>
+            <form
+              className="fb-auth-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
+              <input type="text" placeholder="Mobile number or email address" className="fb-auth-input" autoComplete="username" />
+              <input type="password" placeholder="Password" className="fb-auth-input" autoComplete="current-password" />
+              <button type="submit" className="fb-auth-btn-primary">
+                Log In
+              </button>
               <a href="#forgot" className="fb-auth-forgot">Forgotten password?</a>
               <hr className="fb-auth-divider" />
               <Link to="/signup" className="fb-auth-btn-success">Create new account</Link>

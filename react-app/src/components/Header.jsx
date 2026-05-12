@@ -117,7 +117,14 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
                 <i className="bi bi-chat-left-text-fill"></i>
                 <span className="th-dropdown-text">Give feedback</span>
               </div>
-              <div className="th-dropdown-item">
+              <div
+                className="th-dropdown-item"
+                onClick={() => {
+                  sessionStorage.removeItem('techhub-auth');
+                  setShowDropdown(false);
+                  navigate('/login');
+                }}
+              >
                 <i className="bi bi-box-arrow-right"></i>
                 <span className="th-dropdown-text">Log Out</span>
               </div>

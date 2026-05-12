@@ -1,8 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 
 export default function SignUp() {
+  const navigate = useNavigate();
+
+  const handleSignUp = () => {
+    sessionStorage.setItem('techhub-auth', '1');
+    navigate('/');
+  };
+
   return (
     <div className="fb-auth-page fb-signup-page">
       <div className="fb-signup-logo-container">
@@ -22,7 +29,13 @@ export default function SignUp() {
         </div>
         <hr className="fb-auth-divider m-0 desktop-only" />
         <div className="fb-signup-body">
-          <form className="fb-signup-form" onSubmit={e => e.preventDefault()}>
+          <form
+            className="fb-signup-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSignUp();
+            }}
+          >
             <div className="fb-signup-row">
               <input type="text" placeholder="First name" className="fb-auth-input" />
               <input type="text" placeholder="Surname" className="fb-auth-input" />
@@ -78,7 +91,9 @@ export default function SignUp() {
             </p>
 
             <div className="fb-signup-footer">
-              <button type="button" className="fb-auth-btn-success">Sign Up</button>
+              <button type="submit" className="fb-auth-btn-success">
+                Sign Up
+              </button>
             </div>
             
             {/* Mobile login link */}

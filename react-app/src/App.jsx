@@ -13,6 +13,7 @@ import Notifications from './pages/Notifications';
 import Menu from './pages/Menu';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import { PostsProvider } from './context/PostsContext';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -27,6 +28,7 @@ export default function App() {
   }, [darkMode]);
 
   return (
+    <PostsProvider>
     <div id="techhub-app">
       {!isAuthPage && (
         <Header
@@ -52,5 +54,6 @@ export default function App() {
         <Route path="/menu" element={<Menu />} />
       </Routes>
     </div>
+    </PostsProvider>
   );
 }
