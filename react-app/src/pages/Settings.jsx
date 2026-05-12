@@ -7,7 +7,7 @@ export default function Settings() {
   const [activeWho, setActiveWho] = useState('public');
 
   return (
-    <div className="th-layout">
+    <div className="th-layout mt-3 mx-3">
       <div className="container-fluid" style={{ padding: '16px 12px', maxWidth: '720px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '20px' }}>Settings & privacy</h1>
 
@@ -18,11 +18,11 @@ export default function Settings() {
           <div className="p-3">
             <label className="d-flex justify-content-between align-items-center gap-3 mb-3" style={{ cursor: 'pointer' }}>
               <span>Email digests</span>
-              <input type="checkbox" checked={emailNotif} onChange={() => setEmailNotif(!emailNotif)} />
+              <input type="checkbox" className='form-check-input' checked={emailNotif} onChange={() => setEmailNotif(!emailNotif)} />
             </label>
             <label className="d-flex justify-content-between align-items-center gap-3" style={{ cursor: 'pointer' }}>
               <span>Push notifications</span>
-              <input type="checkbox" checked={pushNotif} onChange={() => setPushNotif(!pushNotif)} />
+              <input type="checkbox" className='form-check-input' checked={pushNotif} onChange={() => setPushNotif(!pushNotif)} />
             </label>
           </div>
         </div>
@@ -34,7 +34,7 @@ export default function Settings() {
           <div className="p-3">
             <label className="d-flex justify-content-between align-items-center gap-3 mb-3" style={{ cursor: 'pointer' }}>
               <span>Public profile</span>
-              <input type="checkbox" checked={profilePublic} onChange={() => setProfilePublic(!profilePublic)} />
+              <input type="checkbox" className='form-check-input' checked={profilePublic} onChange={() => setProfilePublic(!profilePublic)} />
             </label>
             <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: 8 }}>Who can see your posts?</div>
             <select
@@ -59,13 +59,13 @@ export default function Settings() {
             <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, margin: 0 }}>Security</h2>
           </div>
           <div className="p-3 d-grid gap-2">
-            <button type="button" className="th-btn-secondary text-start">
+            <button type="button" className="th-btn-secondary text-start p-2">
               Change password
             </button>
-            <button type="button" className="th-btn-secondary text-start">
+            <button type="button" className="th-btn-secondary text-start p-2">
               Two-factor authentication
             </button>
-            <button type="button" className="th-btn-secondary text-start">
+            <button type="button" className="th-btn-primary text-start p-2">
               Where you&apos;re logged in
             </button>
           </div>

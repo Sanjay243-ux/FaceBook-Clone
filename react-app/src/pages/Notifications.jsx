@@ -21,7 +21,7 @@ export default function Notifications() {
   };
 
   return (
-    <div className="th-layout">
+    <div className="th-layout mt-3 mx-3">
       <div className="container-fluid" style={{ padding: '16px 12px', maxWidth: '560px', margin: '0 auto' }}>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Notifications</h1>
@@ -75,7 +75,7 @@ export default function Notifications() {
         </div>
 
         <div className="text-center mt-4">
-          <button type="button" className="th-btn-secondary" onClick={() => navigate('/')}>
+          <button type="button" className="th-btn-primary p-2 px-3" onClick={() => navigate('/')}>
             Back to Home
           </button>
         </div>

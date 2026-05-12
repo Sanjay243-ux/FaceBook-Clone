@@ -19,7 +19,7 @@ export default function Help() {
   const [open, setOpen] = useState(0);
 
   return (
-    <div className="th-layout">
+    <div className="th-layout mt-3 mx-3">
       <div className="container-fluid" style={{ padding: '16px 12px', maxWidth: '720px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>Help & support</h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Find quick answers or reach the team.</p>

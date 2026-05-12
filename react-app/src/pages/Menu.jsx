@@ -21,7 +21,7 @@ export default function Menu() {
   };
 
   return (
-    <div className="th-layout">
+    <div className="th-layout mt-3 mx-3">
       <div className="container-fluid" style={{ padding: '16px 12px', maxWidth: '900px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '20px' }}>Menu</h1>
 

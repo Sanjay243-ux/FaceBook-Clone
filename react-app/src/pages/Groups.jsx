@@ -19,7 +19,7 @@ export default function Groups() {
   };
 
   return (
-    <div className="th-layout">
+    <div className="th-layout mt-3 mx-3">
       <div className="container-fluid p-0">
         <div className="row g-0">
           {/* Left Sidebar */}
