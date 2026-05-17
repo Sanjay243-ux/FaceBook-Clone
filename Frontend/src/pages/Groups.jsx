@@ -1,21 +1,40 @@
 import React, { useState } from 'react';
+import ActionBar from '../components/ActionBar';
+import { useSocial } from '../context/SocialContext';
 
 export default function Groups() {
+  const { addToast } = useSocial();
   const [joined, setJoined] = useState(() => new Set());
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [groupPrivacy, setGroupPrivacy] = useState('public');
 
   const groups = [
-    { id: 1, name: 'React Developers Global', members: '145K', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1000&auto=format&fit=crop', active: true },
-    { id: 2, name: 'UI/UX Design Inspiration', members: '82K', image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1000&auto=format&fit=crop', active: false },
-    { id: 3, name: 'Cybersecurity Enthusiasts', members: '210K', image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop', active: true },
+    { id: 1, name: 'React Developers Global', members: '145K', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1000&auto=format&fit=crop', active: true, postAuthor: 'Alex Developer', postText: 'Does anyone have good resources for learning advanced React patterns? I\'m trying to wrap my head around custom hooks and context optimization. Thanks!' },
+    { id: 2, name: 'UI/UX Design Inspiration', members: '82K', image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1000&auto=format&fit=crop', active: false, postAuthor: 'Design Pro', postText: 'Just published my Figma design system template for 2026. It\'s free and includes dark mode tokens, accessibility presets, and responsive breakpoints!' },
+    { id: 3, name: 'Cybersecurity Enthusiasts', members: '210K', image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop', active: true, postAuthor: 'SecOps Daily', postText: 'Critical CVE discovered in popular npm packages. Over 400 libraries affected. Check your dependencies and update immediately!' },
   ];
 
-  const toggleJoin = (id) => {
+  const toggleJoin = (id, name) => {
+    const willJoin = !joined.has(id);
     setJoined((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
+    addToast(
+      willJoin ? `You joined ${name}` : `You left ${name}`,
+      willJoin ? 'success' : 'info',
+    );
+  };
+
+  const handleCreateGroup = () => {
+    if (!groupName.trim()) return;
+    addToast(`Group "${groupName}" created successfully!`, 'success');
+    setGroupName('');
+    setGroupPrivacy('public');
+    setShowCreateModal(false);
   };
 
   return (
@@ -40,7 +59,7 @@ export default function Groups() {
                 <i className="bi bi-compass-fill" style={{ color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
                 <span>Discover</span>
               </button>
-              <button className="th-btn-primary w-100 mt-3" style={{ background: 'rgba(35, 116, 225, 0.1)', color: 'var(--accent-blue)' }}>
+              <button className="th-btn-primary w-100 mt-3" style={{ background: 'rgba(35, 116, 225, 0.1)', color: 'var(--accent-blue)' }} onClick={() => setShowCreateModal(true)}>
                 <i className="bi bi-plus-lg"></i> Create New Group
               </button>
 
@@ -55,7 +74,10 @@ export default function Groups() {
                   <img src={g.image} alt={g.name} style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover' }} />
                   <div className="text-start">
                     <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>{g.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{g.active ? 'Last active an hour ago' : 'Last active 3 days ago'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {g.active ? 'Last active an hour ago' : 'Last active 3 days ago'}
+                      {joined.has(g.id) && <span style={{ color: '#31a24c' }}> · Joined</span>}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -72,7 +94,7 @@ export default function Groups() {
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px' }}>Recent Activity</h3>
               
               {groups.map(group => (
-                <div key={group.id} className="th-card mb-4 overflow-hidden">
+                <div key={group.id} className="th-card mb-4 overflow-hidden" id={`item-group-${group.id}`}>
                   <div className="p-3 d-flex align-items-center gap-2 border-bottom" style={{ borderColor: 'var(--border-color)', background: 'var(--elevated-bg)' }}>
                     <img src={group.image} alt={group.name} style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
                     <div>
@@ -83,9 +105,13 @@ export default function Groups() {
                       type="button"
                       className={`${joined.has(group.id) ? 'th-btn-secondary' : 'th-btn-primary'} ms-auto`}
                       style={{ width: 'auto', padding: '6px 16px' }}
-                      onClick={() => toggleJoin(group.id)}
+                      onClick={() => toggleJoin(group.id, group.name)}
                     >
-                      {joined.has(group.id) ? 'Joined' : 'Join'}
+                      {joined.has(group.id) ? (
+                        <><i className="bi bi-check-lg me-1"></i>Joined</>
+                      ) : (
+                        <><i className="bi bi-plus-lg me-1"></i>Join</>
+                      )}
                     </button>
                   </div>
                   
@@ -95,24 +121,73 @@ export default function Groups() {
                         <i className="bi bi-person-fill"></i>
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Alex Developer <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>posted an update</span></div>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{group.postAuthor} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>posted an update</span></div>
                         <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>4 hrs</div>
                       </div>
                     </div>
-                    <p style={{ color: 'var(--text-primary)' }}>Does anyone have good resources for learning advanced React patterns? I'm trying to wrap my head around custom hooks and context optimization. Thanks!</p>
+                    <p style={{ color: 'var(--text-primary)' }}>{group.postText}</p>
                   </div>
                   
-                  <div className="p-2 d-flex justify-content-between border-top" style={{ borderColor: 'var(--border-color)' }}>
-                    <button className="th-action-btn flex-fill"><i className="bi bi-hand-thumbs-up"></i> Like</button>
-                    <button className="th-action-btn flex-fill"><i className="bi bi-chat-dots"></i> Comment</button>
-                    <button className="th-action-btn flex-fill"><i className="bi bi-share"></i> Share</button>
-                  </div>
+                  <ActionBar
+                    itemId={`group-${group.id}`}
+                    itemTitle={`post in ${group.name}`}
+                    initialLikes={0}
+                    initialComments={0}
+                  />
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Create Group Modal */}
+      {showCreateModal && (
+        <div className="th-create-post-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="th-create-post-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="th-create-post-header">
+              <h3 className="mb-0 text-center w-100" style={{ fontSize: '1.25rem', fontWeight: 700 }}>Create New Group</h3>
+              <button type="button" className="th-close-modal-btn" onClick={() => setShowCreateModal(false)}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <div className="th-divider" style={{ margin: 0 }}></div>
+            <div className="th-create-post-body p-3">
+              <div className="mb-3">
+                <label style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px', display: 'block' }}>Group Name</label>
+                <input
+                  type="text"
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  placeholder="Enter group name..."
+                  style={{ width: '100%', padding: '10px 14px', background: 'var(--elevated-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '0.9375rem', outline: 'none' }}
+                />
+              </div>
+              <div className="mb-3">
+                <label style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px', display: 'block' }}>Privacy</label>
+                <select
+                  value={groupPrivacy}
+                  onChange={(e) => setGroupPrivacy(e.target.value)}
+                  className="form-select"
+                  style={{ background: 'var(--elevated-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+                >
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                className="th-btn-primary w-100"
+                style={{ padding: '10px', opacity: groupName.trim() ? 1 : 0.5 }}
+                disabled={!groupName.trim()}
+                onClick={handleCreateGroup}
+              >
+                Create Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

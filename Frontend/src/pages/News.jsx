@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ActionBar from '../components/ActionBar';
+import { useSocial } from '../context/SocialContext';
 
 export default function News() {
+  const { isFollowing, toggleFollow, addToast } = useSocial();
+  const [savedArticles, setSavedArticles] = useState(new Set());
+  const [activeTab, setActiveTab] = useState('foryou');
+
   const newsArticles = [
     {
       id: 1,
@@ -10,7 +16,7 @@ export default function News() {
       title: 'OpenAI announces new breakthrough in conversational AI models',
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop',
       summary: 'The new model exhibits reasoning capabilities that far surpass previous iterations, setting a new benchmark for the industry.',
-      likes: '1.2K',
+      likes: 1200,
       comments: 345,
     },
     {
@@ -21,7 +27,7 @@ export default function News() {
       title: 'Apple prepares for its biggest MacBook redesign in years',
       image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
       summary: 'Rumors suggest the next iteration will feature a completely new chassis, advanced cooling, and next-generation Apple Silicon.',
-      likes: '850',
+      likes: 850,
       comments: 124,
     },
     {
@@ -32,9 +38,36 @@ export default function News() {
       title: 'The global chip shortage is finally showing signs of easing',
       image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop',
       summary: 'Major manufacturers report stabilization in supply chains, though some sectors may still face constraints through next year.',
-      likes: '3.4K',
+      likes: 3400,
       comments: 892,
     }
+  ];
+
+  const handleFollow = (name) => {
+    const willFollow = !isFollowing(name);
+    toggleFollow(name);
+    addToast(willFollow ? `You are now following ${name}` : `You unfollowed ${name}`, willFollow ? 'success' : 'info');
+  };
+
+  const toggleSave = (id) => {
+    setSavedArticles((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        addToast('Article removed from saved', 'info');
+      } else {
+        next.add(id);
+        addToast('Article saved!', 'success');
+      }
+      return next;
+    });
+  };
+
+  const tabs = [
+    { id: 'foryou', label: 'For you' },
+    { id: 'following', label: 'Following' },
+    { id: 'latest', label: 'Latest' },
+    { id: 'popular', label: 'Popular' },
   ];
 
   return (
@@ -58,6 +91,11 @@ export default function News() {
               <button className="th-sidebar-link">
                 <i className="bi bi-bookmark-fill" style={{ color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
                 <span>Saved Articles</span>
+                {savedArticles.size > 0 && (
+                  <span style={{ marginLeft: 'auto', background: 'var(--accent-blue)', color: '#fff', borderRadius: '10px', padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {savedArticles.size}
+                  </span>
+                )}
               </button>
               <div className="th-sidebar-section-title mt-2">Categories</div>
               <button className="th-sidebar-link"><i className="bi bi-robot" style={{ color: '#764ba2' }}></i> Artificial Intelligence</button>
@@ -74,27 +112,51 @@ export default function News() {
             </div>
             
             <div className="th-card p-3 mb-3 d-flex gap-2 align-items-center" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-              <button className="th-btn-secondary rounded-pill px-3 py-2" style={{ background: 'var(--accent-blue)', color: '#fff' }}>For you</button>
-              <button className="th-btn-secondary rounded-pill px-3 py-2">Following</button>
-              <button className="th-btn-secondary rounded-pill px-3 py-2">Latest</button>
-              <button className="th-btn-secondary rounded-pill px-3 py-2">Popular</button>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className="th-btn-secondary rounded-pill px-3 py-2"
+                  style={activeTab === tab.id ? { background: 'var(--accent-blue)', color: '#fff' } : {}}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {newsArticles.map(article => (
-              <div key={article.id} className="th-card mb-3">
+              <div key={article.id} className="th-card mb-3" id={`item-news-${article.id}`}>
                 <div className="p-3 d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center gap-2">
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
                       <i className={`bi ${article.sourceIcon}`}></i>
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{article.source}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                        {article.source}
+                        <span
+                          style={{ color: 'var(--accent-blue)', fontSize: '0.8125rem', cursor: 'pointer', marginLeft: '8px' }}
+                          onClick={() => handleFollow(article.source)}
+                        >
+                          · {isFollowing(article.source) ? 'Following' : 'Follow'}
+                        </span>
+                      </div>
                       <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{article.time}</div>
                     </div>
                   </div>
-                  <button className="th-btn-secondary" style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%' }}>
-                    <i className="bi bi-three-dots"></i>
-                  </button>
+                  <div className="d-flex gap-1">
+                    <button
+                      className="th-btn-secondary"
+                      style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%', color: savedArticles.has(article.id) ? '#f7b928' : undefined }}
+                      onClick={() => toggleSave(article.id)}
+                      title={savedArticles.has(article.id) ? 'Remove from saved' : 'Save article'}
+                    >
+                      <i className={`bi ${savedArticles.has(article.id) ? 'bi-bookmark-fill' : 'bi-bookmark'}`}></i>
+                    </button>
+                    <button className="th-btn-secondary" style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%' }}>
+                      <i className="bi bi-three-dots"></i>
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="px-3 pb-2">
@@ -104,23 +166,12 @@ export default function News() {
                 
                 <img src={article.image} alt={article.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
                 
-                <div className="p-3 pb-0">
-                  <div className="d-flex justify-content-between align-items-center pb-2 border-bottom" style={{ borderColor: 'var(--border-color)' }}>
-                    <div className="d-flex align-items-center gap-1">
-                      <span style={{ background: '#2374e1', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>👍</span>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}>{article.likes}</span>
-                    </div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}>
-                      {article.comments} comments
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-2 d-flex justify-content-between">
-                  <button className="th-action-btn flex-fill"><i className="bi bi-hand-thumbs-up"></i> Like</button>
-                  <button className="th-action-btn flex-fill"><i className="bi bi-chat-dots"></i> Comment</button>
-                  <button className="th-action-btn flex-fill"><i className="bi bi-share"></i> Share</button>
-                </div>
+                <ActionBar
+                  itemId={`news-${article.id}`}
+                  itemTitle={article.title}
+                  initialLikes={article.likes}
+                  initialComments={article.comments}
+                />
               </div>
             ))}
           </div>

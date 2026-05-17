@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSocial } from '../context/SocialContext';
 
 function stripCodeHtml(html) {
   if (!html) return '';
@@ -10,6 +11,7 @@ function stripCodeHtml(html) {
 
 export default function PostCard({ post }) {
   const navigate = useNavigate();
+  const { currentUser, addToast } = useSocial();
   const [liked, setLiked] = useState(false);
   const [reactions, setReactions] = useState(post.reactions || 0);
   const [expanded, setExpanded] = useState(false);
@@ -38,10 +40,11 @@ export default function PostCard({ post }) {
     
     const newComment = {
       id: Date.now(),
-      author: 'Tech Admin',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+      author: currentUser.name,
+      avatar: currentUser.avatar,
       text: commentText,
-      time: 'Just now'
+      time: 'Just now',
+      liked: false,
     };
     
     setCommentsList([...commentsList, newComment]);
@@ -49,9 +52,16 @@ export default function PostCard({ post }) {
     setCommentText('');
   };
 
-  const handleShare = () => {
+  const toggleCommentLike = (id) => {
+    setCommentsList((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, liked: !c.liked } : c)),
+    );
+  };
+
+  const handleShare = (method) => {
     setShareCount((s) => s + 1);
     setShowShareModal(false);
+    addToast(`Shared "${post.title}" ${method}`, 'success');
   };
 
   const handleCopyPostLink = async () => {
@@ -62,12 +72,14 @@ export default function PostCard({ post }) {
       /* ignore */
     }
     setShowShareModal(false);
+    addToast('Link copied to clipboard!', 'success');
   };
 
   const copyCode = async () => {
     const text = stripCodeHtml(post.codeBlock);
     try {
       await navigator.clipboard.writeText(text);
+      addToast('Code copied to clipboard!', 'success');
     } catch {
       /* ignore */
     }
@@ -163,7 +175,12 @@ export default function PostCard({ post }) {
                     <div style={{ fontSize: '0.9375rem', color: 'var(--text-primary)' }}>{comment.text}</div>
                   </div>
                   <div className="d-flex gap-3 mt-1 ms-2" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                    <span style={{ cursor: 'pointer' }}>Like</span>
+                    <span
+                      style={{ cursor: 'pointer', color: comment.liked ? 'var(--accent-blue)' : 'var(--text-muted)' }}
+                      onClick={() => toggleCommentLike(comment.id)}
+                    >
+                      Like
+                    </span>
                     <span style={{ cursor: 'pointer' }}>Reply</span>
                     <span style={{ fontWeight: 400 }}>{comment.time}</span>
                   </div>
@@ -173,7 +190,7 @@ export default function PostCard({ post }) {
 
             {/* Comment Input */}
             <div className="d-flex gap-2 mt-3">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+              <img src={currentUser.avatar} alt="User" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
               <div className="flex-fill d-flex align-items-center" style={{ background: 'var(--elevated-bg)', borderRadius: '20px', padding: '4px 12px' }}>
                 <form onSubmit={submitComment} className="flex-fill d-flex align-items-center">
                   <input 
@@ -206,7 +223,7 @@ export default function PostCard({ post }) {
             <div className="th-divider" style={{ margin: 0 }}></div>
             
             <div className="th-create-post-body p-2">
-              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare()} style={{ background: 'transparent', border: 'none' }}>
+              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare('publicly')} style={{ background: 'transparent', border: 'none' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
                   <i className="bi bi-arrow-90deg-right"></i>
                 </div>
@@ -215,7 +232,7 @@ export default function PostCard({ post }) {
                 </div>
               </button>
 
-              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare()} style={{ background: 'transparent', border: 'none' }}>
+              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare('to your feed')} style={{ background: 'transparent', border: 'none' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
                   <i className="bi bi-pencil-square"></i>
                 </div>
@@ -224,7 +241,16 @@ export default function PostCard({ post }) {
                 </div>
               </button>
 
-              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare()} style={{ background: 'transparent', border: 'none' }}>
+              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare('via Messenger')} style={{ background: 'transparent', border: 'none' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+                  <i className="bi bi-send-fill"></i>
+                </div>
+                <div className="text-start">
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Send in Messenger</div>
+                </div>
+              </button>
+
+              <button type="button" className="th-sidebar-link w-100 d-flex align-items-center gap-3 px-3 py-2" onClick={() => handleShare('to a group')} style={{ background: 'transparent', border: 'none' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
                   <i className="bi bi-people-fill"></i>
                 </div>

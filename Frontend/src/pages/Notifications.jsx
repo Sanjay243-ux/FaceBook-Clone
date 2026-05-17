@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSocial } from '../context/SocialContext';
 
 const INITIAL = [
   { id: 1, text: 'Sarah Chen commented on your post.', time: '12m', read: false, icon: 'bi-chat-fill', color: '#2374e1' },
@@ -10,11 +11,17 @@ const INITIAL = [
 
 export default function Notifications() {
   const navigate = useNavigate();
+  const { notifications: socialNotifs } = useSocial();
   const [items, setItems] = useState(INITIAL);
 
-  const unread = useMemo(() => items.filter((n) => !n.read).length, [items]);
+  // Merge social context notifications with the built-in ones
+  const allItems = useMemo(() => [...socialNotifs, ...items], [socialNotifs, items]);
 
-  const markAllRead = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+  const unread = useMemo(() => allItems.filter((n) => !n.read).length, [allItems]);
+
+  const markAllRead = () => {
+    setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const toggleRead = (id) => {
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n)));
@@ -32,8 +39,19 @@ export default function Notifications() {
           )}
         </div>
 
+        {unread > 0 && (
+          <div className="th-card p-3 mb-3" style={{ background: 'rgba(35, 116, 225, 0.08)', border: '1px solid rgba(35, 116, 225, 0.2)' }}>
+            <div className="d-flex align-items-center gap-2">
+              <i className="bi bi-bell-fill" style={{ color: 'var(--accent-blue)', fontSize: '1.25rem' }}></i>
+              <span style={{ fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                You have <strong>{unread}</strong> unread notification{unread !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="d-flex flex-column gap-2">
-          {items.map((n) => (
+          {allItems.map((n) => (
             <button
               key={n.id}
               type="button"

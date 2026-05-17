@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ActionBar from '../components/ActionBar';
+import { useSocial } from '../context/SocialContext';
 
 export default function Videos() {
+  const { isFollowing, toggleFollow, addToast } = useSocial();
+  const [savedVideos, setSavedVideos] = useState(new Set());
+  const [activeNav, setActiveNav] = useState('home');
+
   const videos = [
     {
       id: 1,
@@ -8,6 +14,8 @@ export default function Videos() {
       time: '12 hours ago',
       title: 'Is the new M3 chip really that much faster?',
       views: '1.2M',
+      likes: 14000,
+      comments: 2100,
       thumbnail: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
       duration: '14:20'
     },
@@ -17,6 +25,8 @@ export default function Videos() {
       time: '2 days ago',
       title: 'Building a full-stack Next.js app in 10 minutes',
       views: '450K',
+      likes: 8500,
+      comments: 1300,
       thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
       duration: '10:05'
     },
@@ -26,9 +36,38 @@ export default function Videos() {
       time: '5 days ago',
       title: 'Understanding Neural Networks with Animations',
       views: '890K',
+      likes: 22000,
+      comments: 3400,
       thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1965&auto=format&fit=crop',
       duration: '22:15'
     }
+  ];
+
+  const handleFollow = (name) => {
+    const willFollow = !isFollowing(name);
+    toggleFollow(name);
+    addToast(willFollow ? `You are now following ${name}` : `You unfollowed ${name}`, willFollow ? 'success' : 'info');
+  };
+
+  const toggleSaveVideo = (id) => {
+    setSavedVideos((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        addToast('Video removed from saved', 'info');
+      } else {
+        next.add(id);
+        addToast('Video saved!', 'success');
+      }
+      return next;
+    });
+  };
+
+  const navItems = [
+    { id: 'home', icon: 'bi-camera-video-fill', label: 'Home', activeStyle: { color: '#fff', background: 'var(--accent-blue)' } },
+    { id: 'live', icon: 'bi-camera-reels-fill', label: 'Live', activeStyle: {} },
+    { id: 'shows', icon: 'bi-collection-play-fill', label: 'Shows', activeStyle: {} },
+    { id: 'saved', icon: 'bi-bookmark-fill', label: 'Saved Videos', activeStyle: {} },
   ];
 
   return (
@@ -45,22 +84,28 @@ export default function Videos() {
             </div>
             
             <div className="th-sidebar-nav mt-3">
-              <button className="th-sidebar-link" style={{ background: 'var(--hover-bg)' }}>
-                <i className="bi bi-camera-video-fill" style={{ color: '#fff', background: 'var(--accent-blue)', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
-                <span style={{ fontWeight: 600 }}>Home</span>
-              </button>
-              <button className="th-sidebar-link">
-                <i className="bi bi-camera-reels-fill" style={{ color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
-                <span>Live</span>
-              </button>
-              <button className="th-sidebar-link">
-                <i className="bi bi-collection-play-fill" style={{ color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
-                <span>Shows</span>
-              </button>
-              <button className="th-sidebar-link">
-                <i className="bi bi-bookmark-fill" style={{ color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}></i> 
-                <span>Saved Videos</span>
-              </button>
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  className="th-sidebar-link"
+                  style={activeNav === item.id ? { background: 'var(--hover-bg)' } : {}}
+                  onClick={() => setActiveNav(item.id)}
+                >
+                  <i
+                    className={`bi ${item.icon}`}
+                    style={activeNav === item.id
+                      ? { ...item.activeStyle, padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
+                      : { color: '#000', background: '#e4e6eb', padding: '6px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
+                    }
+                  ></i> 
+                  <span style={activeNav === item.id ? { fontWeight: 600 } : {}}>{item.label}</span>
+                  {item.id === 'saved' && savedVideos.size > 0 && (
+                    <span style={{ marginLeft: 'auto', background: 'var(--accent-blue)', color: '#fff', borderRadius: '10px', padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}>
+                      {savedVideos.size}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -72,20 +117,44 @@ export default function Videos() {
             
             <div style={{ maxWidth: '720px', margin: '0 auto' }}>
               {videos.map(video => (
-                <div key={video.id} className="th-card mb-4 overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
+                <div key={video.id} className="th-card mb-4 overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }} id={`item-video-${video.id}`}>
                   <div className="p-3 d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center gap-2">
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--elevated-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <i className="bi bi-person-video2"></i>
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{video.author} <span style={{ color: 'var(--accent-blue)', fontSize: '0.8125rem', cursor: 'pointer' }}>· Follow</span></div>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {video.author}
+                          <span
+                            style={{
+                              color: isFollowing(video.author) ? 'var(--text-muted)' : 'var(--accent-blue)',
+                              fontSize: '0.8125rem',
+                              cursor: 'pointer',
+                              marginLeft: '8px',
+                              fontWeight: isFollowing(video.author) ? 400 : 600,
+                            }}
+                            onClick={() => handleFollow(video.author)}
+                          >
+                            · {isFollowing(video.author) ? 'Following ✓' : 'Follow'}
+                          </span>
+                        </div>
                         <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{video.time}</div>
                       </div>
                     </div>
-                    <button className="th-btn-secondary" style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%' }}>
-                      <i className="bi bi-three-dots"></i>
-                    </button>
+                    <div className="d-flex gap-1">
+                      <button
+                        className="th-btn-secondary"
+                        style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%', color: savedVideos.has(video.id) ? '#f7b928' : undefined }}
+                        onClick={() => toggleSaveVideo(video.id)}
+                        title={savedVideos.has(video.id) ? 'Remove from saved' : 'Save video'}
+                      >
+                        <i className={`bi ${savedVideos.has(video.id) ? 'bi-bookmark-fill' : 'bi-bookmark'}`}></i>
+                      </button>
+                      <button className="th-btn-secondary" style={{ padding: '6px', width: '36px', height: '36px', borderRadius: '50%' }}>
+                        <i className="bi bi-three-dots"></i>
+                      </button>
+                    </div>
                   </div>
                   
                   <div className="px-3 pb-2">
@@ -95,32 +164,27 @@ export default function Videos() {
                   <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', background: '#000', cursor: 'pointer' }}>
                     <img src={video.thumbnail} alt={video.title} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2rem' }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2rem', transition: 'transform 0.2s' }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      >
                         <i className="bi bi-play-fill" style={{ marginLeft: '4px' }}></i>
                       </div>
                     </div>
                     <div style={{ position: 'absolute', bottom: '16px', right: '16px', background: 'rgba(0,0,0,0.8)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8125rem', fontWeight: 600 }}>
                       {video.duration}
                     </div>
+                    <div style={{ position: 'absolute', bottom: '16px', left: '16px', color: '#fff', fontSize: '0.8125rem', fontWeight: 500, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                      {video.views} Views
+                    </div>
                   </div>
                   
-                  <div className="p-3">
-                    <div className="d-flex justify-content-between align-items-center pb-2 border-bottom" style={{ borderColor: 'var(--border-color)' }}>
-                      <div className="d-flex align-items-center gap-1">
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}>{video.views} Views</span>
-                      </div>
-                      <div className="d-flex gap-3">
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}><i className="bi bi-hand-thumbs-up me-1"></i> 14K</div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}><i className="bi bi-chat-dots me-1"></i> 2.1K</div>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-2 d-flex justify-content-between">
-                      <button className="th-action-btn flex-fill"><i className="bi bi-hand-thumbs-up"></i> Like</button>
-                      <button className="th-action-btn flex-fill"><i className="bi bi-chat-dots"></i> Comment</button>
-                      <button className="th-action-btn flex-fill"><i className="bi bi-share"></i> Share</button>
-                    </div>
-                  </div>
+                  <ActionBar
+                    itemId={`video-${video.id}`}
+                    itemTitle={video.title}
+                    initialLikes={video.likes}
+                    initialComments={video.comments}
+                  />
                 </div>
               ))}
             </div>

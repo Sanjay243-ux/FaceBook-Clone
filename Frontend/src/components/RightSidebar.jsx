@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useSocial } from '../context/SocialContext';
 
 export default function RightSidebar() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const { isFollowing, toggleFollow, addToast } = useSocial();
 
   const trending = [
     { topic: '#GeminiUltra', posts: '12.4K posts' },
@@ -23,6 +25,22 @@ export default function RightSidebar() {
     { month: 'JUN', day: '9', name: 'WWDC 2026', location: 'Apple Park, Cupertino' },
     { month: 'JUL', day: '20', name: 'AWS re:Invent', location: 'Las Vegas, NV' },
   ];
+
+  const handleFollow = (name) => {
+    const willFollow = !isFollowing(name);
+    toggleFollow(name);
+    addToast(
+      willFollow ? `You are now following ${name}` : `You unfollowed ${name}`,
+      willFollow ? 'success' : 'info',
+    );
+  };
+
+  const handleSubscribe = () => {
+    if (email) {
+      setSubscribed(true);
+      addToast('Successfully subscribed to the newsletter!', 'success');
+    }
+  };
 
   return (
     <div className="th-sidebar" id="right-sidebar">
@@ -76,7 +94,13 @@ export default function RightSidebar() {
               <div className="th-suggested-name">{s.name}</div>
               <div className="th-suggested-cat">{s.category}</div>
             </div>
-            <button className="th-follow-btn">Follow</button>
+            <button
+              className={`th-follow-btn ${isFollowing(s.name) ? 'following' : ''}`}
+              onClick={() => handleFollow(s.name)}
+              id={`follow-${s.name.replace(/\s/g, '-')}`}
+            >
+              {isFollowing(s.name) ? 'Following' : 'Follow'}
+            </button>
           </div>
         ))}
       </div>
@@ -109,7 +133,7 @@ export default function RightSidebar() {
         {!subscribed ? (
           <>
             <input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} id="newsletter-email" />
-            <button className="th-newsletter-btn" onClick={() => { if (email) setSubscribed(true); }} id="subscribe-btn">Subscribe</button>
+            <button className="th-newsletter-btn" onClick={handleSubscribe} id="subscribe-btn">Subscribe</button>
           </>
         ) : (
           <div style={{ color: '#31a24c', fontWeight: 600, padding: 8 }}>

@@ -13,7 +13,9 @@ import Notifications from './pages/Notifications';
 import Menu from './pages/Menu';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import ToastContainer from './components/ToastContainer';
 import { PostsProvider } from './context/PostsContext';
+import { SocialProvider } from './context/SocialContext';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -28,6 +30,7 @@ export default function App() {
   }, [darkMode]);
 
   return (
+    <SocialProvider>
     <PostsProvider>
     <div id="techhub-app">
       {!isAuthPage && (
@@ -53,7 +56,10 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/menu" element={<Menu />} />
       </Routes>
+
+      <ToastContainer />
     </div>
     </PostsProvider>
+    </SocialProvider>
   );
 }
