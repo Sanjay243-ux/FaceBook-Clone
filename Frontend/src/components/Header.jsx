@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQuery }) {
+  const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -73,14 +75,14 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
         </button>
         <div className="position-relative" ref={dropdownRef}>
           <button className="th-user-avatar-btn" onClick={() => setShowDropdown(!showDropdown)} id="user-menu-btn">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" />
+            <img src={user?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown"} alt="User" />
           </button>
           {showDropdown && (
             <div className="th-dropdown" id="user-dropdown" style={{ padding: '16px 8px 8px 8px' }}>
               <div className="th-dropdown-card">
                 <div className="th-dropdown-profile-info" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" className="th-dropdown-avatar" />
-                  <div className="th-dropdown-name">Tech Admin</div>
+                  <img src={user?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown"} alt="User" className="th-dropdown-avatar" />
+                  <div className="th-dropdown-name">{user ? `${user.first_name} ${user.last_name}` : 'User'}</div>
                 </div>
                 <div className="th-divider" style={{ margin: '0 16px' }}></div>
                 <div className="th-dropdown-see-all" onClick={() => { navigate('/profile'); setShowDropdown(false); }}>
@@ -120,7 +122,7 @@ export default function Header({ darkMode, setDarkMode, searchQuery, setSearchQu
               <div
                 className="th-dropdown-item"
                 onClick={() => {
-                  sessionStorage.removeItem('techhub-auth');
+                  logout();
                   setShowDropdown(false);
                   navigate('/login');
                 }}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import News from './pages/News';
@@ -16,6 +16,14 @@ import SignUp from './pages/SignUp';
 import ToastContainer from './components/ToastContainer';
 import { PostsProvider } from './context/PostsContext';
 import { SocialProvider } from './context/SocialContext';
+import { useAuth } from './context/AuthContext';
+
+function ProtectedRoute({ children }) {
+  const { token, loading } = useAuth();
+  if (loading) return null;
+  if (!token) return <Navigate to="/login" replace />;
+  return children;
+}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -45,16 +53,16 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/" element={<Home activeCategory={activeCategory} setActiveCategory={setActiveCategory} searchQuery={searchQuery} />} />
-        <Route path="/news" element={<News />} />
-        <Route path="/guides" element={<Guides />} />
-        <Route path="/videos" element={<Videos />} />
-        <Route path="/groups" element={<Groups />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/help" element={<Help />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/menu" element={<Menu />} />
+        <Route path="/" element={<ProtectedRoute><Home activeCategory={activeCategory} setActiveCategory={setActiveCategory} searchQuery={searchQuery} /></ProtectedRoute>} />
+        <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
+        <Route path="/guides" element={<ProtectedRoute><Guides /></ProtectedRoute>} />
+        <Route path="/videos" element={<ProtectedRoute><Videos /></ProtectedRoute>} />
+        <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
       </Routes>
 
       <ToastContainer />

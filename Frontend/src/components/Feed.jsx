@@ -3,8 +3,12 @@ import PostCard from './PostCard';
 import { usePosts } from '../context/PostsContext';
 
 export default function Feed({ activeCategory, searchQuery }) {
-  const { posts } = usePosts();
+  const { posts, fetchPosts, loading } = usePosts();
   const [visibleCount, setVisibleCount] = useState(4);
+
+  useEffect(() => {
+    fetchPosts(activeCategory, searchQuery);
+  }, [activeCategory, searchQuery, fetchPosts]);
 
   useEffect(() => {
     const raw = window.location.hash.replace(/^#/, '');
@@ -32,10 +36,18 @@ export default function Feed({ activeCategory, searchQuery }) {
         <PostCard key={post.id} post={post} />
       ))}
 
-      {visible.length === 0 && (
+      {!loading && visible.length === 0 && (
         <div className="th-card" style={{ textAlign: 'center', padding: 40 }}>
           <i className="bi bi-search" style={{ fontSize: '2rem', color: 'var(--text-muted)' }}></i>
           <p style={{ color: 'var(--text-muted)', marginTop: 12 }}>No posts found matching your criteria.</p>
+        </div>
+      )}
+
+      {loading && (
+        <div className="th-card" style={{ textAlign: 'center', padding: 40 }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
       )}
 

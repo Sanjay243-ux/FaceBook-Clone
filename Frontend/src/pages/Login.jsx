@@ -1,13 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    sessionStorage.setItem('techhub-auth', '1');
-    navigate('/');
+  const handleLogin = async () => {
+    setError('');
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Login failed');
+      }
+      login(data.user, data.token);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,10 +68,25 @@ export default function Login() {
                 handleLogin();
               }}
             >
-              <input type="text" placeholder="Mobile number or email address" className="fb-auth-input" autoComplete="username" />
-              <input type="password" placeholder="Password" className="fb-auth-input" autoComplete="current-password" />
-              <button type="submit" className="fb-auth-btn-primary">
-                Log In
+              {error && <div style={{ color: 'red', fontSize: '13px', marginBottom: '10px', textAlign: 'center' }}>{error}</div>}
+              <input 
+                type="text" 
+                placeholder="Mobile number or email address" 
+                className="fb-auth-input" 
+                autoComplete="username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} 
+              />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className="fb-auth-input" 
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} 
+              />
+              <button type="submit" className="fb-auth-btn-primary" disabled={loading}>
+                {loading ? 'Logging in...' : 'Log In'}
               </button>
               <a href="#forgot" className="fb-auth-forgot">Forgotten password?</a>
               <hr className="fb-auth-divider" />

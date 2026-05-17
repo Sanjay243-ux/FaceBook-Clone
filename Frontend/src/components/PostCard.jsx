@@ -126,8 +126,14 @@ export default function PostCard({ post }) {
           )}
         </div>
 
-        {/* Post Image — full width */}
-        {post.image && <img src={post.image} alt={post.title} className="th-post-image" style={{ width: '100%', maxHeight: 500, objectFit: 'cover' }} />}
+        {/* Post Image/Video — full width */}
+        {post.image_url && (
+          post.image_url.startsWith('data:video') ? (
+            <video src={post.image_url} controls className="th-post-image" style={{ width: '100%', maxHeight: 500, objectFit: 'contain', background: '#000' }} />
+          ) : (
+            <img src={post.image_url} alt={post.title} className="th-post-image" style={{ width: '100%', maxHeight: 500, objectFit: 'contain', background: '#000' }} />
+          )
+        )}
 
         {/* Reaction Summary */}
         <div className="th-reaction-row">

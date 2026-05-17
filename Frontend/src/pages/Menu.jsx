@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const ITEMS = [
   { to: '/', icon: 'bi-house-door-fill', label: 'Home', desc: 'Feed & stories' },
@@ -14,9 +15,10 @@ const ITEMS = [
 
 export default function Menu() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const logout = () => {
-    sessionStorage.removeItem('techhub-auth');
+  const handleLogout = () => {
+    logout();
     navigate('/login');
   };
 
@@ -55,9 +57,9 @@ export default function Menu() {
         </div>
 
         <div className="th-card mt-4 p-3">
-          <button type="button" className="d-flex align-items-center gap-3 border-0 bg-transparent w-100 text-start p-0" style={{ color: 'var(--text-primary)', cursor: 'pointer' }} onClick={logout}>
+          <button type="button" className="d-flex align-items-center gap-3 border-0 bg-transparent w-100 text-start p-0" style={{ color: 'var(--text-primary)', cursor: 'pointer' }} onClick={handleLogout}>
             <i className="bi bi-box-arrow-right" style={{ fontSize: '1.25rem' }}></i>
-            <span style={{ fontWeight: 600 }}>Log out (demo)</span>
+            <span style={{ fontWeight: 600 }}>Log out</span>
           </button>
         </div>
       </div>

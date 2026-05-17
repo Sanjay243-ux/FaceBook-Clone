@@ -1,10 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PostCard from '../components/PostCard';
 import { usePosts } from '../context/PostsContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
   const { posts } = usePosts();
-  const profilePosts = posts.filter((p) => p.author === 'Tech Admin');
+  const { user, token, updateUser } = useAuth();
+  const [profileData, setProfileData] = useState(null);
+  
+  useEffect(() => {
+    if (!user) return;
+    fetch(`http://localhost:5000/api/users/${user.id}`)
+      .then(r => r.json())
+      .then(d => setProfileData(d.user))
+      .catch(console.error);
+  }, [user]);
+
+  const profilePosts = posts.filter((p) => p.userPost);
+
+  const handleEditBio = async () => {
+    const newBio = prompt('Enter new bio:', profileData?.profile?.bio || '');
+    if (newBio !== null) {
+      await fetch('http://localhost:5000/api/users/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ bio: newBio })
+      });
+      setProfileData(prev => ({...prev, profile: {...prev.profile, bio: newBio}}));
+    }
+  };
+
+  const handleEditDetails = async () => {
+    const workplace = prompt('Enter workplace:', profileData?.profile?.workplace || '');
+    const location = prompt('Enter location:', profileData?.profile?.location || '');
+    if (workplace !== null && location !== null) {
+      await fetch('http://localhost:5000/api/users/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ workplace, location })
+      });
+      setProfileData(prev => ({...prev, profile: {...prev.profile, workplace, location}}));
+    }
+  };
+
+  const handleEditAvatar = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const res = await fetch('http://localhost:5000/api/users/avatar', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ avatar_url: reader.result })
+          });
+          if(res.ok) {
+            const data = await res.json();
+            updateUser(data.user);
+            setProfileData(prev => ({...prev, avatar_url: data.user.avatar_url}));
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
+  };
+
+  const name = user ? `${user.first_name} ${user.last_name}` : 'User';
+  const avatar = user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown';
 
   return (
     <div className="th-layout" style={{ background: 'var(--primary-bg)' }}>
@@ -20,16 +86,16 @@ export default function Profile() {
 
           <div className="th-profile-info-container">
             <div className="th-profile-avatar-wrapper">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" className="th-profile-avatar-large" />
-              <button type="button" className="th-edit-avatar-btn">
+              <img src={avatar} alt="User" className="th-profile-avatar-large" style={{ objectFit: 'cover' }} />
+              <button type="button" className="th-edit-avatar-btn" onClick={handleEditAvatar}>
                 <i className="bi bi-camera-fill"></i>
               </button>
             </div>
 
             <div className="th-profile-details">
               <div className="th-profile-name-area">
-                <h1 className="th-profile-name-large">Tech Admin</h1>
-                <div className="th-profile-friends-count">1.2K friends</div>
+                <h1 className="th-profile-name-large">{name}</h1>
+                <div className="th-profile-friends-count">{profileData?.friend_count || 0} friends</div>
                 <div className="th-profile-friends-avatars">
                   <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jack" alt="Friend" />
                   <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Friend" />
@@ -91,40 +157,24 @@ export default function Profile() {
             <div className="col-lg-5 col-12 mb-3">
               <div className="th-card th-intro-card mb-3">
                 <h3 className="th-card-title">Intro</h3>
-                <div className="th-intro-bio">Building the future of social tech. #react #developer</div>
-                <button type="button" className="th-btn-secondary w-100 mb-3" style={{ padding: '8px' }}>
+                <div className="th-intro-bio">{profileData?.profile?.bio || 'No bio yet.'}</div>
+                <button type="button" className="th-btn-secondary w-100 mb-3" style={{ padding: '8px' }} onClick={handleEditBio}>
                   Edit bio
                 </button>
 
                 <div className="th-intro-item">
                   <i className="bi bi-briefcase-fill text-muted"></i>
                   <span>
-                    Software Engineer at <strong>TechHub</strong>
-                  </span>
-                </div>
-                <div className="th-intro-item">
-                  <i className="bi bi-mortarboard-fill text-muted"></i>
-                  <span>
-                    Studied Computer Science at <strong>University of Tech</strong>
-                  </span>
-                </div>
-                <div className="th-intro-item">
-                  <i className="bi bi-house-door-fill text-muted"></i>
-                  <span>
-                    Lives in <strong>San Francisco, California</strong>
+                    Workplace: <strong>{profileData?.profile?.workplace || 'Not set'}</strong>
                   </span>
                 </div>
                 <div className="th-intro-item">
                   <i className="bi bi-geo-alt-fill text-muted"></i>
                   <span>
-                    From <strong>New York, New York</strong>
+                    Location: <strong>{profileData?.profile?.location || 'Not set'}</strong>
                   </span>
                 </div>
-                <div className="th-intro-item">
-                  <i className="bi bi-heart-fill text-muted"></i>
-                  <span>Single</span>
-                </div>
-                <button type="button" className="th-btn-secondary w-100 mt-3" style={{ padding: '8px' }}>
+                <button type="button" className="th-btn-secondary w-100 mt-3" style={{ padding: '8px' }} onClick={handleEditDetails}>
                   Edit details
                 </button>
                 <button type="button" className="th-btn-secondary w-100 mt-2" style={{ padding: '8px' }}>
@@ -185,7 +235,7 @@ export default function Profile() {
             <div className="col-lg-7 col-12">
               <div className="th-card th-create-post-card mb-3">
                 <div className="th-create-post-top">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" className="th-create-avatar" />
+                  <img src={avatar} alt="User" className="th-create-avatar" />
                   <input type="text" className="th-create-input" placeholder="What's on your mind?" readOnly />
                 </div>
                 <div className="th-create-divider"></div>

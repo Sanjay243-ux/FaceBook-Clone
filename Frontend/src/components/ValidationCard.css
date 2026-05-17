@@ -1,0 +1,103 @@
+.validation-card {
+  position: absolute;
+  z-index: 1000;
+  width: 250px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #dddfe2;
+  font-family: inherit;
+  animation: fadeIn 0.2s ease-out;
+  padding: 12px;
+}
+
+.validation-card-bottom {
+  top: calc(100% + 10px);
+  left: 0;
+}
+
+.validation-card-top {
+  bottom: calc(100% + 10px);
+  left: 0;
+}
+
+.validation-card-right {
+  top: 0;
+  left: calc(100% + 10px);
+}
+
+.validation-card-header h6 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1e21;
+}
+
+.validation-criteria-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.validation-criterion {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #606770;
+  transition: color 0.2s;
+}
+
+.validation-criterion.met {
+  color: #00a400; /* Facebook green */
+}
+
+.validation-criterion.unmet {
+  color: #fa3e3e;
+}
+
+.validation-icon {
+  margin-right: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrow styling */
+.validation-card::before,
+.validation-card::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.validation-card-bottom::before {
+  top: -9px;
+  left: 20px;
+  border-width: 0 9px 9px 9px;
+  border-color: transparent transparent #dddfe2 transparent;
+}
+
+.validation-card-bottom::after {
+  top: -8px;
+  left: 21px;
+  border-width: 0 8px 8px 8px;
+  border-color: transparent transparent #fff transparent;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
